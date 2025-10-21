@@ -1,90 +1,38 @@
 // Starting pont for the application
-
 const express = require("express");
-
 const app = express();
+const connectDB = require("./config/database");
+const User = require("./models/user");
 
-const userAuth = require("./middlewares/userAuth");
-const adminAuth = require("./middlewares/adminAuth");
-
-app.use("/admin", adminAuth);
-
-app.get(
-  "/admin/getAllUsers",
-  (req, res) => {
-    res.send("All users data");
+app.post("/signup", async (req, res) => {
+  const details = {
+    firstName: "Hemanth",
+    lastName: "kumar",
+    email: "hemanth@kumar.com",
+    password: "hemanth239",
+    age: 23,
   }
-);
+// create an instance of the User model
+const user = new User(details);
 
-app.delete(
-  "/admin/deleteUser",
-  (req, res) => {
-    res.send(
-      "User Deleted successfully"
-    );
-  }
-);
+try {
+  await user.save();
+res.status(201).send({message: "User signed up successfully" });
+} catch (error) {
+res.status(400).send("Error signing up user" + error.message);
+}
+});
 
-app.get("/user/login", (req, res) => {
-  res.send(
-    "User logged in successfully"
+
+connectDB()
+  .then(() => {
+    console.log("Database connected successfully");
+    app.listen(3000, () => {
+  console.log("server created successfully");
+})
+  },
+).catch((err) =>
+    console.err(" Error in DB connection", err)
   );
-});
 
-app.get(
-  "/user/data",
-  userAuth,
-  (req, res) => {
-    res.send("User data");
-  }
-);
 
-app.get("/user", (req, res) => {
-  res.send({
-    firstName: "Harsh",
-    lastName: "jain",
-  });
-});
-
-// app.get(
-//   "/user",
-//   (req, res, next) => {
-//     next();
-//     res.send({
-//       firstName: "Harsha",
-//       lastName: "jain",
-//     });
-//   },
-//   (req, res) => {
-//     res.send({
-//       firstName: "Harsh",
-//       lastName: "jain",
-//     });
-//   },
-//   (req, res) => {
-//     res.send({
-//       firstName: "Harsh",
-//       lastName: "jai",
-//     });
-//   }
-// );
-
-app.post("/user", (req, res) => {
-  res.send("Data Posted successfully");
-});
-
-app.delete("/user", (req, res) => {
-  res.send("Data Deleted successfully");
-});
-
-app.use("/home", (req, res) => {
-  res.send(
-    "<h1>Hello from express</h1>"
-  );
-});
-
-app.listen(3000, () => {
-  console.log(
-    "server created successfully"
-  );
-});
